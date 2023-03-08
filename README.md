@@ -1,3 +1,3 @@
 # sample_graphql
 
-A new Flutter project.
+https://studio.apollographql.com/public/SpaceX-pxxbxen/explorer?variant=current

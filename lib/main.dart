@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages, implementation_imports
+import 'package:gql/src/ast/ast.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:sample_graphql/utils/utils.dart';
 
@@ -54,7 +57,7 @@ class HomePage extends StatelessWidget {
               minLines: 2,
               maxLines: 100,
             ),
-            const Divider(),
+            const SizedBox(height: 16),
             const Text("Response"),
             Expanded(child: SpaceX(controller))
           ],
@@ -77,7 +80,7 @@ class _SpaceXState extends State<SpaceX> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Query(
-        options: QueryOptions(document: gql(widget.controller.text)),
+        options: QueryOptions(document: adsd()),
         builder: (result, {fetchMore, refetch}) {
           return Column(
             children: [
@@ -114,5 +117,16 @@ class _SpaceXState extends State<SpaceX> {
         },
       ),
     );
+  }
+
+  DocumentNode adsd() {
+    try {
+      return gql(widget.controller.text);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+    return const DocumentNode();
   }
 }

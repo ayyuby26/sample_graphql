@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:sample_graphql/utils.dart';
+import 'package:sample_graphql/utils/utils.dart';
 
 import 'const.dart';
 import 'view/client/graphql_view.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:sample_graphql/utils.dart';
 
-import 'service.dart';
+import 'const.dart';
 import 'view/client/graphql_view.dart';
 
 void main() async {
@@ -20,18 +20,13 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: HomePage());
+    return MaterialApp(home: HomePage());
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomePage extends StatelessWidget {
+  HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   final controller = TextEditingController(text: r"""
         query ExampleQuery($limit: Int) {
           rockets(limit: $limit) {
@@ -43,6 +38,7 @@ class _HomePageState extends State<HomePage> {
           }
         }
 """);
+
   @override
   Widget build(BuildContext context) {
     return ClientProvider(
@@ -62,15 +58,6 @@ class _HomePageState extends State<HomePage> {
             const Text("Response"),
             Expanded(child: SpaceX(controller))
           ],
-        ),
-        bottomSheet: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(onPressed: () {}, child: const Text("Re-Fetch")),
-            ],
-          ),
         ),
       ),
     );
@@ -92,8 +79,38 @@ class _SpaceXState extends State<SpaceX> {
       body: Query(
         options: QueryOptions(document: gql(widget.controller.text)),
         builder: (result, {fetchMore, refetch}) {
-          if (result.data != null) return Text(jsonPretty(result.data!));
-          return const SizedBox();
+          return Column(
+            children: [
+              Expanded(
+                child: (result.data != null)
+                    ? ListView(
+                        children: [
+                          Text((jsonPretty(deleteTypeName(result.data!))))
+                        ],
+                      )
+                    : Center(
+                        child: result.hasException
+                            ? Text("${result.exception}")
+                            : const CircularProgressIndicator()),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                        onPressed: () {
+                          if (refetch != null) {
+                            refetch();
+                            setState(() {});
+                          }
+                        },
+                        child: const Text("Re-Fetch")),
+                  ],
+                ),
+              )
+            ],
+          );
         },
       ),
     );

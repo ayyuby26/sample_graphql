@@ -29,18 +29,7 @@ class _AppState extends State<App> {
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
-
-  final controller = TextEditingController(text: r"""
-        query ExampleQuery($limit: Int) {
-          rockets(limit: $limit) {
-            company
-            name
-            mass {
-              kg
-            }
-          }
-        }
-""");
+  final controller = TextEditingController(text: queryDefault);
 
   @override
   Widget build(BuildContext context) {
@@ -80,38 +69,15 @@ class _SpaceXState extends State<SpaceX> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Query(
-        options: QueryOptions(document: adsd()),
+        options: QueryOptions(document: documentNodeHandler),
         builder: (result, {fetchMore, refetch}) {
           return Column(
             children: [
               Expanded(
-                child: (result.data != null)
-                    ? ListView(
-                        children: [
-                          Text((jsonPretty(deleteTypeName(result.data!))))
-                        ],
-                      )
-                    : Center(
-                        child: result.hasException
-                            ? Text("${result.exception}")
-                            : const CircularProgressIndicator()),
+                child:
+                    result.data != null ? data(result) : dataNull(result),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () {
-                          if (refetch != null) {
-                            refetch();
-                            setState(() {});
-                          }
-                        },
-                        child: const Text("Re-Fetch")),
-                  ],
-                ),
-              )
+              fetchBtn(refetch)
             ],
           );
         },
@@ -119,7 +85,7 @@ class _SpaceXState extends State<SpaceX> {
     );
   }
 
-  DocumentNode adsd() {
+  DocumentNode get documentNodeHandler {
     try {
       return gql(widget.controller.text);
     } catch (e) {
@@ -128,5 +94,42 @@ class _SpaceXState extends State<SpaceX> {
       }
     }
     return const DocumentNode();
+  }
+
+  Widget data(QueryResult<Object?> result) {
+    final data = deleteTypeName(result.data!);
+    return ListView(
+      children: [
+        Text(jsonPretty(data)),
+      ],
+    );
+  }
+
+  Widget dataNull(QueryResult<Object?> result) {
+    return Center(
+      child: result.hasException
+          ? Text("${result.exception}")
+          : const CircularProgressIndicator(),
+    );
+  }
+
+  Widget fetchBtn(Refetch<Object?>? refetch) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              if (refetch != null) {
+                refetch();
+                setState(() {});
+              }
+            },
+            child: const Text("Re-Fetch"),
+          ),
+        ],
+      ),
+    );
   }
 }
